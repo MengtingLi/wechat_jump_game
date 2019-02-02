@@ -1,104 +1,78 @@
-# 教你用Python来玩微信跳一跳
+# 教你用 Python 来玩微信跳一跳
+[![GitHub stars](https://img.shields.io/github/stars/wangshub/wechat_jump_game.svg)](https://github.com/wangshub/wechat_jump_game/stargazers) [![GitHub forks](https://img.shields.io/github/forks/wangshub/wechat_jump_game.svg)](https://github.com/wangshub/wechat_jump_game/network) [![GitHub license](https://img.shields.io/github/license/wangshub/wechat_jump_game.svg)](https://github.com/wangshub/wechat_jump_game/blob/master/LICENSE)
 
-
-[https://wangshub.github.io](https://wangshub.github.io)
-
-[github项目地址](https://github.com/wangshub/wechat_jump_game)
-
-### **更新日志：**
-
-> 2017-12-29 ： 增加更新自动化运行脚本，感谢github上的binderclip
-
-> 2017-12-30 : 请将安卓手机的usb调试模式打开，》开发者选项》USB调试
-
-> 2017-12-30 ： 根据大家反馈：1080屏幕距离系数**1.393**,2k屏幕为**1**
-
-
-
-### 相关问题
-
-请先查阅一下issue区
-
-- 参数出错请在这里提交：[issues/62](https://github.com/wangshub/wechat_jump_game/issues/62)
-- 如果你是ios参考一下： [issues/99](https://github.com/wangshub/wechat_jump_game/issues/99) 和
-[/issues/4](https://github.com/wangshub/wechat_jump_game/issues/4)
-- 如果你想自动运行：请运行`wechat_jump_auto.py`，记得修改`config.json`参数
-- 如果你是1280x720屏幕分辨率：请运行`wechat_jump_auto_1280_720.py`
-- 如果你是ios，请运行：`wechat_jump_iOS_py3.py`
-- 更新了一些分辨率参数配置，请按照你的手机分辨率从`config/`文件夹找到相应的配置，拷贝到*.py同级目录;
-- 注意：别刷太高，已经有同学遇到分数清零的情况了[164](https://github.com/wangshub/wechat_jump_game/issues/164)
+[![Throughput Graph](https://graphs.waffle.io/wangshub/wechat_jump_game/throughput.svg)](https://waffle.io/wangshub/wechat_jump_game/metrics/throughput) 
 
 ## 游戏模式
 
-> 2017年12月28日下午，微信发布了 6.6.1 版本，加入了「小游戏」功能，并提供了官方 demo「跳一跳」。
+> 2017 年 12 月 28 日下午，微信发布了 6.6.1 版本，加入了「小游戏」功能，并提供了官方 DEMO「跳一跳」。这是一个 2.5D 插画风格的益智游戏，玩家可以通过按压屏幕时间的长短来控制这个「小人」跳跃的距离。分数越高，那么在好友排行榜更加靠前。通过 Python 脚本自动运行，让你轻松霸榜。
 
-这是一个 2.5D 插画风格的益智游戏，玩家可以通过按压屏幕时间的长短来控制这个「小人」跳跃的距离。可能刚开始上手的时候，因为时间距离之间的关系把握不恰当，只能跳出几个就掉到了台子下面。
-玩法类似于《flappy bird》
+![](./resource/image/jump.gif)
 
-![](https://ws1.sinaimg.cn/large/c3a916a7gy1fmxe4gnfhnj20hs0a0t8q.jpg)
-
-**如果能精确测量出起始和目标点之间测距离，就可以估计按压的时间来精确跳跃？所以花2个小时写了一个python脚本进行验证**
-
-希望不要把分数刷太高，容易没朋友的。。。
-
-## 工具介绍
-
-- Python 2.7
-- Android 手机
-- Adb 驱动
-- Python Matplot绘图
-
-如果你是`iOS`，请参考下面的配置：
-- 使用真机调试wda，参考iOS 真机如何安装 [WebDriverAgent · TesterHome](https://testerhome.com/topics/7220)
-- 安装[openatx/facebook-wda](https://github.com/openatx/facebook-wda)
-- Python 3
-
-## 依赖安装
-
-``` bash
-    pip install -r requirements.txt
-```
+可能刚开始上手的时候，因为时间距离之间的关系把握不恰当，只能跳出几个就掉到了台子下面。**如果能利用图像识别精确测量出起始和目标点之间测距离，就可以估计按压的时间来精确跳跃。**
 
 ## 原理说明
 
-1. 将手机点击到《跳一跳》小程序界面；
-2. 用Adb 工具获取当前手机截图，并用adb将截图pull上来
+##### 由于微信检测非常严厉，这里的防禁代码可能已经不起作用，主要供学习用途
 
+1. 将手机点击到《跳一跳》小程序界面
+
+2. 用 ADB 工具获取当前手机截图，并用 ADB 将截图 pull 上来
 ```shell
-    adb shell screencap -p /sdcard/1.png
-    adb pull /sdcard/1.png .
+adb shell screencap -p /sdcard/autojump.png
+adb pull /sdcard/autojump.png .
 ```
 
-3. 用matplot显示截图；
-4. 用鼠标点击起始点和目标位置，计算像素距离；
-5. 根据像素距离，计算按压时间；
-6. 用Adb工具点击屏幕蓄力一跳；
+3. 计算按压时间
+  * 手动版：用 Matplotlib 显示截图，用鼠标先点击起始点位置，然后点击目标位置，计算像素距离；
+  * 自动版：靠棋子的颜色来识别棋子，靠底色和方块的色差来识别棋盘；
 
+4. 用 ADB 工具点击屏幕蓄力一跳
 ```shell
-    adb shell input swipe x y x y time
+adb shell input swipe x y x y time(ms)
 ```
 
-如果你是 `iOS`：
-1. 运行安装好的 `WebDriverAgentRunner`
-2. 将手机点击到《跳一跳》小程序界面
-3. `python3 wechat_jump_iOS_py3.py`
-4. 依次点击起始位置和目标位置，实现蓄力一跳
-5. 打开 `python3 wechat_jump_iOS_py3.py`，根据蓄力一跳的精准情况更改其中的 `time_coefficient`，直到获得最佳取值
-
-## 安卓手机操作步骤
-
-- 安卓手机打开USB调试，设置》开发者选项》USB调试
-- 电脑与手机USB线连接，确保执行`adb devices`可以找到设备id
-- 界面转至微信跳一跳游戏，点击开始游戏
-- 运行`python wechat_jump_auto.py`，如果手机界面显示USB授权，请点击确认
 
 
-## 实验结果
+## 使用教程
 
-![](https://ws1.sinaimg.cn/large/c3a916a7gy1fmxel5dkxvj20u01hcmzx.jpg)
+相关软件工具安装和使用步骤请参考 [Android 和 iOS 操作步骤](https://github.com/wangshub/wechat_jump_game/wiki/Android-%E5%92%8C-iOS-%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4)
 
-## TODO 
+#### 获取源码
 
-可以对拉上来的图片进行颜色分割，识别小人和目标中心，这样就不需要手动点击自动弹跳。
-事实证明，机器人比人更会玩儿游戏。
+```
+- git clone https://github.com/wangshub/wechat_jump_game.git
+
+```
+##### 非常推荐使用Python3，避免编码及import问题
+## PR 要求
+##### 请选择 merge 进 master 分支，并且标题写上简短描述，例子 
+[优化] 使用PEP8优化代码
+
+## 版本说明
+
+- master 分支：稳定版本，已通过测试
+- dev 分支：开发版本，包含一些较稳定的新功能，累计多个功能并测试通过后合并至 prod 分支
+- 其他分支：功能开发 (feature) 或问题修复 (bugfix)，属于最新尝鲜版本，可能处于开发中的状态，基本完成后合并至 dev 分支
+
+## FAQ
+
+- 详见 [Wiki-FAQ](https://github.com/wangshub/wechat_jump_game/wiki/FAQ)
+
+## 更新日志
+
+- 详见 [changelog](https://github.com/wangshub/wechat_jump_game/blob/master/changelog.md)
+
+## 开发者列表
+
+- 详见 [contributors](https://github.com/wangshub/wechat_jump_game/graphs/contributors)
+
+## 交流
+
+- 314659953 (1000 人)
+- 176740763 (500 人)
+
+- 或者关注我的微信公众号后台留言
+
+![](./resource/image/qrcode_for_gh_3586401957c4_258.jpg)
 
